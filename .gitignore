@@ -1,0 +1,19 @@
+# Ignore all files in inputs directory
+inputs/*
+
+# Then selectively include only files you want
+!inputs/unedited/csv_to_txt.py
+!inputs/unedited/to_zero_index.cpp
+
+# Ignore all files in code directory first
+code/*
+
+# Then selectively include only the files you want
+!code/CMakeLists.txt
+!code/Makefile
+!code/tricount.cpp
+
+# Ignore system files
+.DS_Store
+__pycache__/
+*.pyc
