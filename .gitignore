@@ -1,5 +1,5 @@
 # Ignore all files in inputs directory
-inputs/*
+inputs/edited
 
 # Then selectively include only files you want
 !inputs/unedited/csv_to_txt.py
