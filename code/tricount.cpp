@@ -221,20 +221,21 @@ void append_to_CSV(const string& csv_name, const string& dataset, const std::vec
     std::cout << "Data for dataset '" << dataset << "' has been appended to " << csv_name << endl;
 }
 
-void create_CSR_format(Graph& graph, ViewVectorType::HostMirror& h_indexPointerView, ViewVectorType::HostMirror& h_indicesView) {
+void create_CSR_format(ViewVectorType::HostMirror& h_indexPointerView, ViewVectorType::HostMirror& h_indicesView) {
+    int V = g.adj.size();
     int count = 0;
     h_indexPointerView(0) = 0;
-    for (int a = 0; a < graph.vertices; a++) {
+    for (int a = 0; a < V; a++) {
         // int size = graph.adj[a].size();
         // h_indexPointerView(a + 1) = h_indexPointerView(a) + size;
         // for (int b = 0; b < size; b++) {
         //     h_indicesView(count++) = graph.adj[a][b];
         // }
         int size = 0;
-        for (int b = 0; b < graph.adj[a].size(); b++){
-            if(a < graph.adj[a][b]){
+        for (int b = 0; b < g.adj[a].size(); b++){
+            if(a < g.adj[a][b]){
                 size++;
-                h_indicesView(count++) = graph.adj[a][b];
+                h_indicesView(count++) = g.adj[a][b];
             }
             h_indexPointerView(a + 1) = h_indexPointerView(a) + size;
         }        
@@ -321,7 +322,7 @@ int main(int argc, char* argv[]) {
     ViewVectorType::HostMirror h_indexPointerView = Kokkos::create_mirror_view(indexPointerView);
     ViewVectorType::HostMirror h_indicesView = Kokkos::create_mirror_view(indicesView);
 
-    create_CSR_format(g, h_indexPointerView, h_indicesView);
+    create_CSR_format(h_indexPointerView, h_indicesView);
 
     Kokkos::deep_copy(indexPointerView, h_indexPointerView);
     Kokkos::deep_copy(indicesView, h_indicesView);
