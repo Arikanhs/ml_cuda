@@ -8,7 +8,6 @@
 #include <fstream>
 #include <queue>
 #include <climits>
-#include <filesystem>
 #include <Kokkos_Core.hpp>
 
 using namespace std;
@@ -153,16 +152,21 @@ void read_graph(int argc, char* argv[]){
         if(line[0] != '%'){
             istringstream iss(line);
             if(iss >> firstInt >> secondInt){
-                if(secondInt > firstInt){
+                //if(secondInt > firstInt){
                     maxNum = max(firstInt,secondInt);
                     if(maxNum >= g.vertices){
                         g.adj.resize(maxNum + 1);
                         g.vertices = maxNum + 1;
                     }
-                    g.adj[firstInt].push_back(secondInt);
-                    g.adj[secondInt].push_back(firstInt);
-                    g.edges++;
-                }
+                    // check duplicate connection entries and check self loops
+                    if (find(g.adj[firstInt].begin(), g.adj[firstInt].end(), secondInt) == g.adj[firstInt].end()
+                       && firstInt != secondInt) {
+                        // Edge doesn't exist yet, so add it
+                        g.adj[firstInt].push_back(secondInt);
+                        g.adj[secondInt].push_back(firstInt);
+                        g.edges++;
+                    }
+                //}
             }else{
                 printf("Failed to extract integers from line \n");
             }
@@ -172,7 +176,18 @@ void read_graph(int argc, char* argv[]){
 }
 
 string get_filename(const string& path) {
-    return filesystem::path(path).filename().string();
+    // return filesystem::path(path).filename().string();
+
+    // Find last occurrence of either forward slash or backslash
+    size_t lastSlash = path.find_last_of("/\\");
+
+    // If no slash found, return the entire path as it's just a filename
+    if (lastSlash == string::npos) {
+        return path;
+    }
+
+    // Return everything after the last slash
+    return path.substr(lastSlash + 1);
 }
 
 // Creates a CSV file with appropriate headers if it doesn't exist
